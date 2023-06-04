@@ -59,7 +59,7 @@ LocaleConfig.locales['ko'] = {
 };
 
 LocaleConfig.defaultLocale = 'ko';
-//없어지면 성공
+
 const TodoList = () => {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
