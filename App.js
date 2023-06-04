@@ -69,15 +69,15 @@ const TodoList = () => {
   const [markedDates, setMarkedDates] = useState({});
   const [isListVisible, setListVisible] = useState(false);
   const [allTasksVisible, setAllTasksVisible] = useState(false);
-  const [prevSelectedDate, setPrevSelectedDate] = useState('');
+  const [showAllTasks, setShowAllTasks] = useState(false);
   
   useEffect(() => {
-    if (allTasksVisible) {
+    if (showAllTasks) {
       setSelectedTasks(tasks);
     } else {
       setSelectedTasks(tasks.filter((task) => task.date === selectedDate));
     }
-  }, [tasks, selectedDate, allTasksVisible]);
+  }, [tasks, selectedDate, showAllTasks]);
   
 
   useEffect(() => {
@@ -158,10 +158,7 @@ const TodoList = () => {
   };
 
   const toggleAllTasks = () => {
-    setAllTasksVisible(!allTasksVisible);
-    if (!allTasksVisible) {
-      setSelectedTasks(tasks);
-    }
+    setShowAllTasks(!showAllTasks);
   };
 
   const closeModal = () => {
@@ -182,14 +179,13 @@ const TodoList = () => {
   
   
   
-  
   const renderHeader = () => {
     return (
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Todo List</Text>
+        <Text style={styles.headerText}>할 일 목록</Text>
         <TouchableOpacity onPress={toggleAllTasks}>
           <Text style={styles.listButton}>
-            {allTasksVisible ? '전체 목록 접기' : '전체 목록 보기'}
+            {showAllTasks ? '선택 날짜 보기' : '전체 목록 보기'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -200,29 +196,44 @@ const TodoList = () => {
 
   return (
     <View style={styles.container}>
-    {renderHeader()}
-    <SafeAreaView>
-      <Calendar
-        onDayPress={onDayPress}
-        markedDates={markedDates}
-        renderDay={renderDay}
-      />
-    </SafeAreaView>
-    {isListVisible && (
-      <View style={styles.taskList}>
-        {selectedTasks.map((task) => (
-          <View key={task.id} style={styles.taskItem}>
-            <Text style={styles.taskText}>{task.task}</Text>
-            <TouchableOpacity onPress={() => deleteTask(task.id)}>
-              <Text style={styles.deleteButton}>삭제</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-    )}
-    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-      <Text style={styles.addButtonText}>날짜에 할 일 추가</Text>
-    </TouchableOpacity>
+      {renderHeader()}
+      <SafeAreaView>
+        <Calendar
+          onDayPress={onDayPress}
+          markedDates={markedDates}
+          renderDay={renderDay}
+        />
+      </SafeAreaView>
+      {isListVisible && !showAllTasks && (
+        <View style={styles.taskList}>
+          {selectedTasks.map((task) => (
+            <View key={task.id} style={styles.taskItem}>
+              <Text style={styles.taskText}>{task.task}</Text>
+              <TouchableOpacity onPress={() => deleteTask(task.id)}>
+                <Text style={styles.deleteButton}>삭제</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+      {showAllTasks && (
+        <View style={styles.allTasksContainer}>
+          <Text style={styles.allTasksTitle}>전체 할 일 목록</Text>
+          {tasks.map((task) => (
+            <View key={task.id} style={styles.taskItem}>
+              <Text style={styles.taskText}>
+                날짜: {task.date} 할 일: {task.task}
+              </Text>
+              <TouchableOpacity onPress={() => deleteTask(task.id)}>
+                <Text style={styles.deleteButton}>삭제</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+        <Text style={styles.addButtonText}>날짜에 할 일 추가</Text>
+      </TouchableOpacity>
       <Modal animationType="slide" visible={isModalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -242,23 +253,9 @@ const TodoList = () => {
           </View>
         </View>
       </Modal>
-      {allTasksVisible && (
-  <View style={styles.allTasksContainer}>
-    <Text style={styles.allTasksTitle}>전체 할 일 목록</Text>
-    {selectedTasks.map((task) => (
-      <View key={task.id} style={styles.taskItem}>
-        <Text style={styles.taskText}>
-        날짜 : {task.date} 할 일 : {task.task}
-        </Text>
-        <TouchableOpacity onPress={() => deleteTask(task.id)}>
-          <Text style={styles.deleteButton}>삭제</Text>
-        </TouchableOpacity>
-      </View>
-    ))}
-  </View>
-      )}
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
